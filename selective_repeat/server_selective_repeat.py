@@ -68,13 +68,17 @@ def server(process_id: int, num_processes: int, filename: str, probability: floa
                 ack_num = int(data.decode())
                 if ack_num not in acked_packets[address]:
                     acked_packets[address].append(ack_num)
-                highest_ack = max(
-                    [max(acked_packets[client]) if acked_packets[client] else -1 for client in ready_clients])
+                highest_ack = -1
+                for client in ready_clients:
+                    for ack in acked_packets[client]:
+                        if ack > highest_ack:
+                            highest_ack = ack
+
                 window_start = highest_ack + 1
                 window_end = window_start + window_size - 1
                 if window_end > len(packets):
                     window_end = len(packets) - 1
-                seq_num = window_start
+                seq_num = highest_ack + 1
                 if all(acked_packets[client][-1] == len(packets) - 1 for client in ready_clients):
                     break
             except socket.timeout:
