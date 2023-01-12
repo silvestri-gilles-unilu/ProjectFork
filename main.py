@@ -4,9 +4,10 @@ import sys
 import threading
 from tabulate import tabulate
 
+
 def main():
     """Main function to start server and clients"""
-    #Parse the args
+    # Parse the args
     process_id: int = int(sys.argv[1])
     num_processes: int = int(sys.argv[2])
     filename: str = sys.argv[3]
@@ -30,13 +31,15 @@ def main():
     buffer_size: int = 10240
 
     # Create and start the server
-    server_thread = threading.Thread(target=server, args=(process_id, num_processes, filename, probability, window_size, chunk_size, buffer_size))
+    server_thread = threading.Thread(target=server, args=(
+        process_id, num_processes, filename, probability, window_size, chunk_size))
     server_thread.start()
 
     # Create and start the clients
     client_threads = []
     for i in range(num_processes):
-        client_thread = threading.Thread(target=client, args=(process_id, i, filename, window_size, buffer_size))
+        client_thread = threading.Thread(target=client, args=(
+            process_id, i, filename, window_size, buffer_size))
         client_thread.start()
         client_threads.append(client_thread)
 
@@ -49,6 +52,7 @@ def main():
     with open("stats.json", "r", encoding="utf-8") as file:
         stats = json.load(file)
     processes = stats.get("processes")
+
     server_stats = []
     clients = []
     for process in processes:
@@ -70,9 +74,11 @@ def main():
             client_stats.append(process.get("retransmissions_received"))
             clients.append(client_stats)
     print()
-    print(tabulate([server_stats], headers=["Type", "Process", "Time", "Packets sent", "Bytes sent", "Bytes received", "Retransmissions sent"], tablefmt="psql"))
+    print(tabulate([server_stats], headers=["Type", "Process", "Time", "Packets sent",
+          "Bytes sent", "Bytes received", "Retransmissions sent"], tablefmt="psql"))
     print()
-    print(tabulate(clients, headers=["Type", "Process", "Packets received","Bytes sent", "Bytes received", "Retransmissions received"], tablefmt="psql"))
+    print(tabulate(clients, headers=["Type", "Process", "Packets received",
+          "Bytes sent", "Bytes received", "Retransmissions received"], tablefmt="psql"))
 
     # Reset stats file
     reset = {
